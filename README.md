@@ -1,5 +1,7 @@
 # adifcheck — check a ham-radio ADIF log's contents before you upload it
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/RakTikoo/adifcheck)
+
 **Check a ham-radio log's contents — the values LoTW and eQSL actually reject — before you upload it.**
 
 Every logger can write an ADIF file that is perfectly well-formed and still
@@ -53,6 +55,8 @@ With Scoop (Windows):
 scoop bucket add RakTikoo https://github.com/RakTikoo/scoop-bucket
 scoop install adifcheck
 ```
+
+**For agent users:** this repository ships a `SKILL.md` for AI agents. Install it with `npx skills add RakTikoo/adifcheck`.
 
 ## Demo (real output)
 
