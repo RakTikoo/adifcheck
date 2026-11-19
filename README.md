@@ -84,6 +84,10 @@ adifcheck FILE [FILE ...] [--lotw] [--eqsl] [--strict] [--json]
 ```
 
 - `FILE` — one or more ADIF logs, `.adi` or `.adx` (XML) format.
+  As a parser resource limit, ADI field-length tokens longer than 10
+  digits produce syntax findings before integer conversion. Leading-zero
+  lengths up to that limit can be imported. The digit limit is a tool
+  safeguard, not a limit imposed by the ADIF specification.
 - `--lotw` — add the LoTW rule pack: the minimum fields become errors,
   satellite name/propagation-mode mismatches become errors, and duplicate
   QSOs (same call, date, minute, band, mode) are flagged.

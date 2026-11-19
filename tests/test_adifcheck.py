@@ -12,6 +12,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -69,6 +70,55 @@ class TestSpecData(unittest.TestCase):
         self.assertEqual(core.EQSL["limits"]["CALL"], 13)
         self.assertEqual(core.EQSL["modes"]["MFSK"][:3],
                          ["FST4", "FST4W", "FT2"])
+
+
+class TestLengthTokenLimit(unittest.TestCase):
+    def test_length_tokens_up_to_ten_digits_are_accepted(self):
+        # Leading zeros are import-only in ADIF 3.1.8 section IV.A.1.
+        for width in (1, 9, 10):
+            with self.subTest(width=width):
+                parsed = core.parse_adi(
+                    f"<EOH><CALL:{'4'.zfill(width)}>W1AW<EOR>")
+                self.assertEqual(parsed.findings, [])
+                self.assertEqual(parsed.records[0].get("CALL"), "W1AW")
+
+    def test_ten_digit_zero_length_and_typed_fields(self):
+        parsed = core.parse_adi(
+            "<EOH><CALL:4>W1AW<COMMENT:0000000000>"
+            "<NAME:0000000001:S>x<EOR>")
+        self.assertEqual(parsed.findings, [])
+        self.assertEqual(parsed.records[0].get("COMMENT"), "")
+        self.assertEqual(parsed.records[0].get("NAME"), "x")
+
+    def test_oversized_tokens_are_rejected_before_integer_conversion(self):
+        for width in (11, 30, 5000):
+            for digit in ("0", "9"):
+                with self.subTest(width=width, digit=digit):
+                    with patch.object(core, "int", create=True,
+                                      side_effect=AssertionError("must not convert")):
+                        parsed = core.parse_adi(
+                            f"<EOH><COMMENT:{digit * width}>x<EOR>")
+                    self.assertTrue(parsed.findings)
+                    self.assertEqual(parsed.findings[0].rule, "syntax")
+                    self.assertIn(f"({width} digits)", parsed.findings[0].message)
+
+    def test_ten_digit_large_value_is_a_truncated_field_not_an_oversized_token(self):
+        parsed = core.parse_adi("<EOH><COMMENT:9999999999>x")
+        self.assertEqual(len(parsed.findings), 1)
+        self.assertIn("file ends inside field", parsed.findings[0].message)
+
+    def test_oversized_token_cli_is_a_clean_syntax_finding(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "oversized.adi"
+            src.write_text(f"<EOH><COMMENT:{'9' * 5000}>x<EOR>", encoding="utf-8")
+            proc = subprocess.run(
+                [sys.executable, "-m", "adifcheck", str(src), "--json"],
+                cwd=ROOT, capture_output=True, text=True, timeout=5)
+            self.assertEqual(proc.returncode, 1, proc.stderr)
+            self.assertNotIn("Traceback", proc.stderr)
+            data = json.loads(proc.stdout)
+            self.assertGreater(data[0]["errors"], 0)
+            self.assertTrue(any(f["rule"] == "syntax" for f in data[0]["findings"]))
 
 
 class TestOfficialTestFiles(unittest.TestCase):
