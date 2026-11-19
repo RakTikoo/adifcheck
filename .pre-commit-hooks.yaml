@@ -1,0 +1,6 @@
+- id: adifcheck
+  name: adifcheck
+  description: Check ADIF log contents against the ADIF 3.1.8 spec tables (modes, bands, dates, cross-field rules)
+  entry: adifcheck
+  language: python
+  files: \.(adi|adx)$

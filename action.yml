@@ -1,0 +1,36 @@
+name: adifcheck
+description: Check ADIF log contents against the ADIF 3.1.8 spec tables, plus the documented LoTW and eQSL rules
+author: RakTikoo
+inputs:
+  paths:
+    description: One or more .adi/.adx files to check, space-separated
+    required: true
+  lotw:
+    description: Also apply the documented LoTW rule pack ("true" or "false")
+    required: false
+    default: "false"
+  eqsl:
+    description: Also apply the documented eQSL rule pack ("true" or "false")
+    required: false
+    default: "false"
+  strict:
+    description: Treat warnings as failures too ("true" or "false")
+    required: false
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install adifcheck from this repo
+      shell: bash
+      run: pip install "git+https://github.com/RakTikoo/adifcheck@${{ github.action_ref || 'main' }}"
+    - name: Run adifcheck
+      shell: bash
+      run: |
+        flags=()
+        if [ "${{ inputs.lotw }}" = "true" ]; then flags+=(--lotw); fi
+        if [ "${{ inputs.eqsl }}" = "true" ]; then flags+=(--eqsl); fi
+        if [ "${{ inputs.strict }}" = "true" ]; then flags+=(--strict); fi
+        adifcheck ${{ inputs.paths }} "${flags[@]}"

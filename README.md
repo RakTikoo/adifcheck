@@ -1,4 +1,4 @@
-# adifcheck
+# adifcheck — check a ham-radio ADIF log's contents before you upload it
 
 **Check a ham-radio log's contents — the values LoTW and eQSL actually reject — before you upload it.**
 
@@ -12,6 +12,16 @@ submodes and their pairings, bands and their frequency ranges, dates,
 times, and the cross-field rules — and, optionally, against the documented
 acceptance rules of LoTW and eQSL. Each finding names the record, the
 field, what's wrong, and the source the rule comes from.
+
+## Install
+
+```console
+$ pip install git+https://github.com/RakTikoo/adifcheck
+```
+
+Requires Python ≥ 3.10. No dependencies — the standard library only — and
+everything runs **offline**: the specification tables are bundled as data
+files generated from ADIF's published exports.
 
 ## Demo (real output)
 
@@ -36,16 +46,6 @@ examples/clean.adi: 4 records, 0 errors, 0 warnings
 result: clean — no findings
 ```
 
-## Install
-
-```console
-$ pip install git+https://github.com/RakTikoo/adifcheck
-```
-
-Requires Python ≥ 3.10. No dependencies — the standard library only — and
-everything runs **offline**: the specification tables are bundled as data
-files generated from ADIF's published exports.
-
 ## Usage
 
 ```
@@ -64,6 +64,29 @@ adifcheck FILE [FILE ...] [--lotw] [--eqsl] [--strict] [--json]
 
 Exit codes: `0` clean, `1` errors found, `2` a file could not be read at
 all. User errors are one-line messages, never tracebacks.
+
+## Use in CI
+
+This repo is also a composite GitHub Action: it installs adifcheck from this repo at the ref you pin, and checks the log files you name. The step fails when adifcheck exits 1 (errors found — the records an upload service would reject) or 2 (a file could not be read).
+
+```yaml
+- uses: RakTikoo/adifcheck@main
+  with:
+    paths: logs/station.adi
+    lotw: "true"
+    eqsl: "true"
+```
+
+`paths` takes one or more files, space-separated. `lotw`, `eqsl` and `strict` are `"false"` unless you set them to `"true"`.
+
+As a [pre-commit](https://pre-commit.com) hook, checking each log as you commit it:
+
+```yaml
+- repo: https://github.com/RakTikoo/adifcheck
+  rev: main
+  hooks:
+    - id: adifcheck
+```
 
 ### What the core checks cover
 
