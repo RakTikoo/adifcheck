@@ -23,6 +23,37 @@ Requires Python ≥ 3.10. No dependencies — the standard library only — and
 everything runs **offline**: the specification tables are bundled as data
 files generated from ADIF's published exports.
 
+Or from the release files (no registry involved): download
+`adifcheck-0.1.0-py3-none-any.whl` from the
+[v0.1.0 release](https://github.com/RakTikoo/adifcheck/releases/tag/v0.1.0)
+(check it against the release's SHA256SUMS if you want) and install it:
+
+```console
+pip install adifcheck-0.1.0-py3-none-any.whl
+```
+
+Or install straight from GitHub at the v0.1.0 tag:
+
+```console
+pip install git+https://github.com/RakTikoo/adifcheck@v0.1.0
+pipx install git+https://github.com/RakTikoo/adifcheck@v0.1.0
+uv tool install git+https://github.com/RakTikoo/adifcheck@v0.1.0
+```
+
+With Homebrew (macOS/Linux):
+
+```console
+brew tap RakTikoo/tools
+brew install RakTikoo/tools/adifcheck
+```
+
+With Scoop (Windows):
+
+```powershell
+scoop bucket add RakTikoo https://github.com/RakTikoo/scoop-bucket
+scoop install adifcheck
+```
+
 ## Demo (real output)
 
 ```console
