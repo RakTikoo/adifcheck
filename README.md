@@ -83,7 +83,7 @@ As a [pre-commit](https://pre-commit.com) hook, checking each log as you commit 
 
 ```yaml
 - repo: https://github.com/RakTikoo/adifcheck
-  rev: main
+  rev: fb84f5f9c359a402343e90ec1bf9c38e8837f4e7
   hooks:
     - id: adifcheck
 ```
