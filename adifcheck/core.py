@@ -200,7 +200,7 @@ def _parse_adi(text, assume_header):
         name = m.group(1).upper()
         length = m.group(2)
         pos = m.end()
-        if length is not None and len(length) > 9:
+        if length is not None and len(length) > 10:
             # int() on an unbounded digit string can raise (Python's
             # conversion limit) — a corrupt tag must be a finding,
             # never a traceback
